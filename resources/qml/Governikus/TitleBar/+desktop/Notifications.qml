@@ -76,6 +76,16 @@ Item {
 			anchors.fill: parent
 		}
 
+		ListModel {
+			id: emptyNotificationsModel
+			ListElement {
+				type: "feedback"
+				text: qsTr("Currently no notifications.")
+				time: ""
+			}
+
+		}
+
 		GListView {
 			id: logEntryList
 
@@ -91,7 +101,12 @@ Item {
 			leftMargin: spacing
 			scrollBarTopPadding: spacing
 			scrollBarBottomPadding: spacing
-			model: NotificationModel
+			model: if(NotificationModel.rowCount > 0) {
+					   NotificationModel
+				   } else {
+					   emptyNotificationsModel
+				   }
+
 			delegate: Item {
 				width: row.width
 				height: row.height
@@ -105,8 +120,12 @@ Item {
 					spacing: logEntryList.spacing
 
 					Component.onCompleted: {
-						d.unreadMsg = true
-						if (!d.fadeIn) {
+						if(NotificationModel.rowCount > 0) {
+							d.unreadMsg = true
+						}
+
+						// Only show notification when there is a notification
+						if (!d.fadeIn && NotificationModel.rowCount > 0) {
 							d.fadeIn = true
 							fadeOutTimer.restart()
 						}
